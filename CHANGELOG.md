@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.4] - 2026-10-24
+
+### Security
+
+- `follow-redirects` 1.16.0 to 1.16.1 in the client lockfile (pulled in by axios; CVE-2026-111755 and CVE-2026-111756, both high: credential headers could survive a cross-origin redirect)
+- Lint tools are hash-locked like the app dependencies (SonarCloud `githubactions:S8541`, `S8543`, `S8544`). flake8, black and autoflake install from the new `requirements-lint.lock.txt` (generated from `requirements-lint.txt`) with `--require-hashes --only-binary :all:` in `ci.yml` and `main.yml`. ESLint, stylelint, `stylelint-config-standard` and Prettier are client devDependencies, so `main.yml` gets them from `npm ci` instead of an unpinned `npm install` on the runner
+- `.flake8` excludes `node_modules`: ESLint's dependency tree ships a `.py` file (`flatted`), which a local `flake8 .` would otherwise lint after `npm install`
+
 ## [1.5.3] - 2026-10-23
 
 ### Changed

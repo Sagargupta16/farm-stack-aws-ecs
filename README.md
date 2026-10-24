@@ -129,7 +129,7 @@ The two AWS pipelines run in demo mode. They show the full flow without touching
 - **No AWS keys in GitHub.** The deploy job asks GitHub for an OIDC token and assumes an IAM role whose trust policy accepts only this repo's `production` environment ([aws/github-oidc-trust-policy.json](aws/github-oidc-trust-policy.json)). Credentials last for the run; there is nothing to rotate or leak.
 - **Images named by commit.** Every image is tagged with the commit SHA in an immutable ECR repository, and the task definition is rendered from the latest registered revision with only the image swapped. A re-run of the same commit reuses the image it already pushed.
 - **A health check that means something.** `/health` returns 200 only when MongoDB answers a ping within 2 seconds, else 503. A task that cannot reach its database fails the container and ALB checks and is replaced, and the ECS circuit breaker rolls back a rollout whose tasks never get healthy.
-- **Hash-locked, wheels-only installs.** CI, the deploy pipeline and both Dockerfiles install `requirements.lock.txt` with `--require-hashes --only-binary :all:`, so no package runs a build script and nothing unpinned gets in. The image moved from alpine to slim because pymongo ships no musllinux wheel; alpine had to keep gcc around to compile it. npm installs use the lockfile with `--ignore-scripts`.
+- **Hash-locked, wheels-only installs.** CI, the deploy pipeline and both Dockerfiles install `requirements.lock.txt` with `--require-hashes --only-binary :all:`, so no package runs a build script and nothing unpinned gets in. The lint jobs install flake8, black and autoflake the same way from `requirements-lint.lock.txt`. The image moved from alpine to slim because pymongo ships no musllinux wheel; alpine had to keep gcc around to compile it. npm installs use the lockfile with `--ignore-scripts`; ESLint, stylelint and Prettier are devDependencies, so they come from it too.
 - **Secrets stay out of git and the image.** `config/secrets.yml` is listed in both `.gitignore` and `.dockerignore`. In containers the connection string comes from `MONGODB_URL` (an ECS task-definition secret or environment variable in AWS), and the app logs only the MongoDB host.
 - **bcrypt called directly.** passlib is unmaintained and fails on bcrypt 5, so the app hashes with `bcrypt` itself. Passwords longer than 72 bytes, which bcrypt cannot hash, are rejected with a 422.
 - **Integration tests against a real database.** The tests drive the app over HTTP with FastAPI's `TestClient` against a MongoDB service container rather than mocks, so status codes, validation and the Mongo queries are all exercised. Test documents carry a per-run marker and only those are deleted afterwards, so the suite is safe to point at a shared database.
@@ -429,6 +429,8 @@ farm-stack-aws-ecs/
 ├── main.py                 # FastAPI app entry point
 ├── requirements.txt        # Python dependencies
 ├── requirements.lock.txt   # Hash-locked pins CI and the images install (generated from requirements.txt)
+├── requirements-lint.txt   # flake8, black, autoflake for the lint jobs
+├── requirements-lint.lock.txt # Hash-locked pins the lint jobs install (generated from requirements-lint.txt)
 ├── Dockerfile              # Multi-stage app image
 ├── Dockerfile.tests        # Test runner image with coverage gate
 ├── docker-compose.yml      # MongoDB + tests + app
