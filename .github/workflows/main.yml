@@ -53,10 +53,13 @@ jobs:
       - name: Create black-formatting branch
         run: git checkout -b ${{env.BRANCH_NAME}}-black-formatting
   
+      # black, autoflake and flake8 from their own hash-locked, wheels-only lock
+      - name: Install lint tools
+        run: "pip install --require-hashes --only-binary :all: -r requirements-lint.lock.txt"
+
       - name: Check for changes with black
         id: black-check
         run: |
-          pip install black
           if black --check .; then
             echo "BLACK_CHECK_RESULT=success" >> $GITHUB_ENV
           else
@@ -67,7 +70,6 @@ jobs:
         if: ${{ env.BLACK_CHECK_RESULT == 'failure' }}
         run: |
           black .
-          pip install autoflake
           autoflake --remove-all-unused-imports --recursive --remove-unused-variables --in-place .
   
       - name: Add changes to git and push to remote branch 
@@ -85,7 +87,6 @@ jobs:
   
       - name: flake8 linting
         run: |
-          pip install flake8
           flake8 .
 
       # - name: Analysing the code with pylint
@@ -106,6 +107,8 @@ jobs:
       # - name: Move to client directory
       #   run: cd client
 
+      # eslint, stylelint, stylelint-config-standard and prettier are devDependencies,
+      # so they come from package-lock.json like everything else
       - name: Install dependencies
         run: |
           npm ci --ignore-scripts
@@ -114,21 +117,17 @@ jobs:
       - name: Analysing the code with eslint
         continue-on-error: true  # demo: non-blocking
         run: |
-          npm install --ignore-scripts eslint
           npx eslint $(git ls-files '*.js')
         working-directory: ./client
 
       - name: Analysing the code with stylelint
         continue-on-error: true  # demo: non-blocking
         run: |
-          npm install --ignore-scripts stylelint
-          npm install --ignore-scripts --save-dev stylelint-config-standard
           npx stylelint $(git ls-files '*.css')
         working-directory: ./client
 
       - name: Analysing the code with prettier
         run: |
-          npm install --ignore-scripts prettier
           npx prettier --write $(git ls-files '*.js')
           npx prettier --check $(git ls-files '*.js')
         working-directory: ./client

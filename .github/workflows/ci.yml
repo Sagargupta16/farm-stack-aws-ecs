@@ -21,10 +21,12 @@ jobs:
         with:
           python-version: '3.13'
 
+      # Same hash-locked, wheels-only install as the test job, from the lint tools' own lock
+      - name: Install flake8
+        run: "pip install --require-hashes --only-binary :all: -r requirements-lint.lock.txt"
+
       - name: Lint with flake8
-        run: |
-          pip install flake8
-          flake8 .
+        run: flake8 .
 
   backend-test:
     runs-on: ubuntu-latest
