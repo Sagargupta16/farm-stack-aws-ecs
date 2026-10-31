@@ -31,7 +31,7 @@ jobs:
     
     services:
       mongodb:
-        image: mongo:8.2
+        image: mongo:8.3
         ports:
           - 27017:27017
         options: >-
@@ -47,7 +47,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v7
       with:
-        python-version: '3.14'
+        python-version: '3.15'
         cache: pip
         cache-dependency-path: requirements.lock.txt
         

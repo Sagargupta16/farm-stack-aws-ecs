@@ -6,7 +6,7 @@ COPY client/ ./
 RUN npm run build
 
 # slim, not alpine: pymongo publishes no musllinux wheel, so alpine needed gcc to build it from source
-FROM python:3.14-slim
+FROM python:3.15-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     LOG_FORMAT=json
