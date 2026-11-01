@@ -32,7 +32,12 @@ jobs:
     runs-on: ubuntu-latest
     services:
       mongodb:
-        image: mongo:8.2
+        image: mongo:8.3
+        # SERVER-121912: mongod refuses to start on Linux kernels 6.19.0 to 7.0.13 when tcmalloc
+        # per-CPU caches are active. rseq=1 lets glibc register rseq first, so tcmalloc falls back
+        # to per-thread caches (slower, fine for tests) and the startup check passes.
+        env:
+          GLIBC_TUNABLES: glibc.pthread.rseq=1
         ports:
           - 27017:27017
         options: >-
