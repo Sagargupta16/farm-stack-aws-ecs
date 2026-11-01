@@ -19,7 +19,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.15'
+          python-version: '3.13'
 
       # Same hash-locked, wheels-only install as the test job, from the lint tools' own lock
       - name: Install flake8
@@ -46,7 +46,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v7
         with:
-          python-version: '3.15'
+          python-version: '3.14'
           cache: pip
           cache-dependency-path: requirements.lock.txt
 
