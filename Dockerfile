@@ -1,4 +1,4 @@
-FROM node:22-alpine AS frontend
+FROM node:26-alpine AS frontend
 WORKDIR /client
 COPY client/package.json client/package-lock.json ./
 RUN npm ci --ignore-scripts

@@ -1,7 +1,7 @@
 # $schema: "https://github.com/compose-spec/compose-spec/blob/master/schema/compose-spec.json"
 services:
   mongo:
-    image: mongo:8.3
+    image: mongo:9.0
     # SERVER-121912: mongod refuses to start on Linux kernels 6.19.0 to 7.0.13 when tcmalloc
     # per-CPU caches are active. rseq=1 lets glibc register rseq first, so tcmalloc falls back
     # to per-thread caches (slower, fine for tests) and the startup check passes.
